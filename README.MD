@@ -20,3 +20,21 @@ There are stronger stealth contenders that I will update / add as a template soo
 
 **Docker Version Lock**: Uses Playwright v1.50.0 to match Microsoft's official Docker image (`mcr.microsoft.com/playwright:v1.50.0-noble`). Microsoft's images are often behind the latest Playwright releases, so this template is locked to maintain compatibility.
 Let me know if you find them too slow. I've build a few ones myself before.
+
+# 1-click install
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/playwright-ts-puppet?referralCode=dPr4mc)
+\
+(railway is pretty cool, I promise)
+
+
+## About railway
+It's one of the few places that allow easy deploys, have everything, without running into real limitations.
+Their bandwidth pricing is also fair. Need cheaper? Ovh + docker swarm! But don't call me to manage it.
+
+## Eject repo to get your own code clone:
+1. In the service settings, under Source, find the Upstream Repo setting
+2. Click the Eject button
+3. Select the appropriate GitHub organization to create the new repository
+4. Click Eject service
+
+For detailed instructions, see: [Railway Template eject Guide](https://docs.railway.com/guides/deploy#eject-from-template-repository)
