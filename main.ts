@@ -9,7 +9,7 @@ async function testBotDetection() {
 
     // Launch browser with stealth
     const browser = await chromium.launch({
-        headless: false,
+        headless: true,
         args: [
             '--no-sandbox',
             '--disable-setuid-sandbox',
