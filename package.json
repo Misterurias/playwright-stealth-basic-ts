@@ -1,9 +1,12 @@
 {
   "name": "playwright-basicstealth-ts",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc",
+    "start": "npm run build && node dist/main.js",
+    "dev": "ts-node main.ts",
+    "test": "npm run build && node dist/main.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +20,6 @@
     "typescript": "^5.8.3"
   },
   "devDependencies": {
-    "playwright": "^1.52.0"
+    "playwright": "1.50.0"
   }
 }

@@ -16,3 +16,5 @@ There are stronger stealth contenders that I will update / add as a template soo
 - ✅ **Works well for**: Basic testing, screenshots, simple automation, development
 - ❌ **Will be detected by**: Advanced fingerprinting sites, Cloudflare, modern anti-bot systems
 - 🎯 **Use case**: Development, testing, proof-of-concepts, educational purposes
+- **Version lock**: Currently using the official 'mcr.microsoft.com/playwright' docker container,
+but this one is known to be slow to update.
