@@ -126,9 +126,10 @@ app.post("/scrape", async (req, res) => {
     });
 
     const page = await context.newPage();
-    await page.goto(url, { waitUntil: "networkidle" });
-
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 45000 });
+    await page.waitForTimeout(3000); // optional buffer for JS rendering
     const html = await page.content();
+
     await browser.close();
 
     return res.json({ html });
