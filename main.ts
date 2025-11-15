@@ -61,22 +61,31 @@ chromium.use(StealthPlugin());
 const app = express();
 app.use(express.json());
 
+// Helper to detect CF block
+function isCloudflareBlocked(html: string) {
+  return (
+    html.includes("cf-error") ||
+    html.includes("Just a moment...") ||
+    html.includes("Verifying you are human") ||
+    html.includes("Attention Required")
+  );
+}
+
 app.post("/scrape", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "Missing URL" });
 
   console.log(`📥 Received scrape request for: ${url}`);
 
-  // Load proxy credentials from environment variables
+  // Proxy env vars
   const PROXY_USER = process.env.PROXY_USER;
   const PROXY_PASS = process.env.PROXY_PASS;
 
   if (!PROXY_USER || !PROXY_PASS) {
-    console.error("❌ Proxy credentials missing from environment variables.");
+    console.error("❌ Missing PROXY_USER or PROXY_PASS in .env");
     return res.status(500).json({ error: "Proxy credentials not configured." });
   }
 
-  // --- Launch Chromium with Residential Proxy ---
   const browser = await chromium.launch({
     headless: true,
     proxy: {
@@ -89,8 +98,6 @@ app.post("/scrape", async (req, res) => {
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
       "--disable-blink-features=AutomationControlled",
-      "--disable-web-security",
-      "--disable-features=IsolateOrigins,site-per-process",
     ],
   });
 
@@ -104,22 +111,35 @@ app.post("/scrape", async (req, res) => {
     const page = await context.newPage();
 
     console.log("🌐 Navigating with residential proxy…");
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-    await page.goto(url, {
-      waitUntil: "networkidle",
-      timeout: 60000,
-    });
+    // 🔥 NEW: Wait for Cloudflare Turnstile to complete its challenge
+    let challengeResolved = false;
+    for (let i = 0; i < 15; i++) {
+      await page.waitForTimeout(1000);
 
-    // Give CF time to issue challenge cookie if needed
-    await page.waitForTimeout(3500);
+      const title = await page.title();
+      if (!title.includes("Just a moment")) {
+        challengeResolved = true;
+        break;
+      }
+    }
 
     const html = await page.content();
 
-    console.log("✅ Successfully scraped page.");
+    if (!challengeResolved || isCloudflareBlocked(html)) {
+      console.log("❌ Cloudflare still blocking this request.");
+      await browser.close();
+      return res.json({
+        success: false,
+        error: "Cloudflare is blocking the request.",
+      });
+    }
 
+    console.log("✅ Successfully scraped page.");
     await browser.close();
 
-    return res.json({ html });
+    return res.json({ success: true, html });
   } catch (err) {
     console.error("❌ Scrape failed:", err);
     await browser.close();
